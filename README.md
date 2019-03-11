@@ -4,57 +4,70 @@ This projects aims to introduce Elm basics as a hands-on project
 
 ## Startup
 
-### MacOS
+Install [Git](https://git-scm.com/downloads) if it is not already done
+
+### Install `elm`
+
+#### MacOS
 
 Prerequisites: [Homebrew](https://brew.sh/index_fr)
 
 - Install elm: `brew install elm`
 - Install or update npm: `brew install npm` or `brew upgrade npm`
 - Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-- Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
 
-### Unix 
+#### Unix 
 - Install elm: `apt-get install elm`
 - Install or update npm: `apt-get install npm` or `apt-get upgrade npm`
 - Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-- Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
 
-### Windows
+#### Windows
 - Install elm: [Windows Installer](https://guide.elm-lang.org/install.html)
 - Install or update npm: [Node](https://nodejs.org/en/download/)
 - Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-- Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
-
-## Technologies 
-Written in [Elm 0.19.0](https://elm-lang.org/)
-
-![Elm logo](doc/logo.png)
-
-### Code style guide
-I recommend using [NoRedInk Elm style guide](https://github.com/NoRedInk/elm-style-guide) which defines some basic rules for naming and styling our code.
-
-### Hot-reload
-Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-
-Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js --debug`
 
 ### Unit tests
 Install [elm-test](https://github.com/elm-community/elm-test): `npm install -g elm-test`
-
-Run unit tests: `elm-test --watch`
 
 ### Formatter
 Install [elm-format](https://github.com/avh4/elm-format) following this startup guide: [Install Elm format](https://github.com/avh4/elm-format)
 
 This aims to format using Elm style guide when saving.
 
-
 ## Check configuration
 
-Elm version should be **0.19.0**
 ```
-➜  ~ elm --version
+➜  ~ elm --version     
 0.19.0
+➜  ~ elm-live --version
+3.2.3
+➜  ~ elm-test --version
+0.19.0-rev6
+➜  ~ elm-format --help 
+elm-format 0.8.1
+
+Usage: elm-format [INPUT] [--output FILE] [--yes] [--validate] [--stdin]
+                  [--elm-version VERSION] [--upgrade]
+  Format Elm source files.
+
+Available options:
+  -h,--help                Show this help text
+  --output FILE            Write output to FILE instead of overwriting the given
+                           source file.
+  --yes                    Reply 'yes' to all automated prompts.
+  --validate               Check if files are formatted without changing them.
+  --stdin                  Read from stdin, output to stdout.
+  --elm-version VERSION    The Elm version of the source files being formatted.
+                           Valid values: 0.18, 0.19. Default: auto
+  --upgrade                Upgrade older Elm files to Elm 0.19 syntax
+
+Examples:
+  elm-format Main.elm                     # formats Main.elm
+  elm-format Main.elm --output Main2.elm  # formats Main.elm as Main2.elm
+  elm-format src/                         # format all *.elm files in the src directory
+
+Full guide to using elm-format at <https://github.com/avh4/elm-format>
+➜  ~ 
 ```
 
 ## Step-0: Hello World
@@ -102,7 +115,7 @@ When running this command, elm transpiles elm code to javascript inside `index.h
 
 - Install [`elm-live`](#hot-reload) if not already done 
 
-- Run the following command: `elm-live src/Main.elm --port=1234 --open  -- --output=main.js --debug`
+- Run the following command: `elm-live src/Main.elm --port=1234 --open  -- --output=main.js`
 
 You should see as following: 
 ![Elm-live](doc/elm-live.png)
@@ -290,3 +303,116 @@ addAndMultiplyBy a b c =
 ```
 
 This can also help in code-readability as to extract result operations in named variables.
+
+## Step-4: The Elm Architecture
+
+Elm program can be divided into three cleanly separated parts:
+
+![Elm architecture](doc/elm-architecture.png)
+
+- *Model* — the state of your application
+- *update* — a way to update your state
+- *view* — a way to view your state as HTML
+
+Writing a new Elm module often starts with the following skeleton:
+
+```elm
+module Module exposing (..)
+import ...
+
+-- MODEL
+
+type alias Model = { ... }
+
+
+-- UPDATE
+
+type Msg = Write | ...
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Write -> model
+    _ -> ...
+
+
+-- VIEW
+
+view : Model -> Html Msg
+view model =
+  ...
+```
+
+### Elm debugger - A time machine
+
+You can enable Elm debugger easily by adding `--debug` option to your `elm-live` start-up:
+`elm-live src/Counter.elm --port=1234 --open  -- --output=main.js --debug`
+
+This gives you access to the bottom right panel:
+![elm-debugger-1](doc/elm-debugger-1.png) 
+
+Clicking on it will give you access to the history of any action done in your application so you can replay them one by one:
+![elm-debugger-1](doc/elm-debugger-2.png) 
+
+This can be very useful whenever you want to debug your application behaviour.
+
+### Exercise 1: Counter
+
+- Create a new Elm file `Counter.elm` in your `src` directory as below:
+
+```elm
+module Counter exposing (Model, Msg(..), initialModel, main, update, view)
+
+import Browser
+import Html exposing (Html, button, div, text)
+import Html.Events exposing (onClick)
+
+
+type alias Model =
+    { count : Int }
+
+
+initialModel : Model
+initialModel =
+    { count = 0 }
+
+
+type Msg
+    = Increment
+
+
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        Increment ->
+            { model | count = model.count + 1 }
+
+
+view : Model -> Html Msg
+view model =
+    div []
+        [ button [ onClick Increment ] [ text "+1" ]
+        , div [] [ text <| String.fromInt model.count ]
+        ]
+
+
+main : Program () Model Msg
+main =
+    Browser.sandbox
+        { init = initialModel
+        , view = view
+        , update = update
+        }
+
+```
+
+- Run the program: `elm-live src/Counter.elm --port=1234 --open  -- --output=main.js`
+
+- Implement `decrement` action
+
+### Exercise 2: Text input
+
+- Create a new Elm module: `Input.elm`
+- This module should expose an input text and when typing, the state should be updated and a message `Hello ` + login should appear
+![hello-step-4](doc/step-4.elm)
+- **Bonus**: Write "Hello World" whenever the typed value from input is empty
