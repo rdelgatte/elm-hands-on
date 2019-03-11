@@ -178,3 +178,115 @@ Package are prefixed with the module author nickname (or elm for core modules) a
 ### Online editor: [Ellie](https://ellie-app.com/new)
 
 Use this online editor if you want to try some code without having a local project.
+
+## Step-3: Elm syntax
+
+### Boolean
+
+`True` or `False`. Nothing else to explain.
+
+### Arithmetic operators 
+
+Kind of easy so let's skip this one (`+`, `-`, `*` and `/`)...
+
+Small tips: `//` is also a division operator but it returns the Int value of it.
+
+Note that these operators are functions so they can also be used in *prefix style* like `(+) 40 2`
+
+Using it like `40 + 2` is called the **infix style**.
+
+### Comparison
+
+Nothing specific here except the `not equal` operator which look more like a different: `/=`
+```
+(==) = eq
+(/=) = neq
+(<)  = lt
+(>)  = gt
+(<=) = le
+(>=) = ge
+```
+
+### Associativity 
+
+Running `40 + 2 * 100` will return `240` (operator precedence).
+
+If we want to execute `40 + 2` before multiplying it with `100` we need to explicitely tell so:
+`(40 + 2) * 100`
+
+### Basic types
+
+![Basic types](doc/basic_types.png)
+
+### Conditions 
+
+#### If statements
+```elm
+message : Int -> String
+message age =
+    if age > 30 then
+        "You are older than me"
+
+    else
+        "You are younger than me"
+```
+
+#### Case statements (pattern matching)
+```elm
+message : Int -> String
+message age =
+    case age > 30 of
+        True -> "You are older than me"
+        False -> "You are younger than me"
+```
+
+### Functions
+
+- **Fact 1**: A function always returns something!
+- **Fact 2**: Explicitely write function signature helps!
+- **Fact 3**: Function are testable (easily)
+
+```elm
+increment : Int -> Int -> Int 
+increment a b = a + b
+```
+
+You can apply a function partially (currying):
+```elm
+multiplyByTwo : Int -> Int
+multiplyByTwo a = increment a a
+```
+
+### Infix operator (my favourite)
+
+When calling a function like: 
+```elm
+add : Int -> Int -> Int 
+add a b = a + b
+```
+
+You have two possibilities: 
+```elm
+add 40 2 
+2 |> add 40
+```
+
+`|>` means *appendLeft* and helps for code readability most of the time.
+
+### Let
+
+`let` statement helps you extracting temporary variables before returning the function results.
+
+For example:
+
+```elm
+addAndMultiplyBy Int -> Int -> Int -> Int
+addAndMultiplyBy a b c = 
+    let 
+        addResult : Int 
+        addResult = a + b
+    in 
+    addResult * c
+```
+
+This can also help in code-readability as to extract result operations in named variables.
