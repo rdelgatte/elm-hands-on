@@ -110,8 +110,3 @@ You should see as following:
 - Update `Main.elm` to change the output message and save.
 
 See your browser and notice it should have reloaded the page automatically.
-
-
-- Start the project: `elm-live src/Main.elm --port=1234 --open -- --output=main.js --debug`
-
- 
