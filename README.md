@@ -36,7 +36,7 @@ I recommend using [NoRedInk Elm style guide](https://github.com/NoRedInk/elm-sty
 ### Hot-reload
 Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
 
-Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js --debug`
+Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
 
 ### Unit tests
 Install [elm-test](https://github.com/elm-community/elm-test): `npm install -g elm-test`
@@ -102,7 +102,7 @@ When running this command, elm transpiles elm code to javascript inside `index.h
 
 - Install [`elm-live`](#hot-reload) if not already done 
 
-- Run the following command: `elm-live src/Main.elm --port=1234 --open  -- --output=main.js --debug`
+- Run the following command: `elm-live src/Main.elm --port=1234 --open  -- --output=main.js`
 
 You should see as following: 
 ![Elm-live](doc/elm-live.png)
@@ -290,3 +290,116 @@ addAndMultiplyBy a b c =
 ```
 
 This can also help in code-readability as to extract result operations in named variables.
+
+## Step-4: The Elm Architecture
+
+Elm program can be divided into three cleanly separated parts:
+
+![Elm architecture](doc/elm-architecture.png)
+
+- *Model* — the state of your application
+- *update* — a way to update your state
+- *view* — a way to view your state as HTML
+
+Writing a new Elm module often starts with the following skeleton:
+
+```elm
+module Module exposing (..)
+import ...
+
+-- MODEL
+
+type alias Model = { ... }
+
+
+-- UPDATE
+
+type Msg = Write | ...
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Write -> model
+    _ -> ...
+
+
+-- VIEW
+
+view : Model -> Html Msg
+view model =
+  ...
+```
+
+### Elm debugger - A time machine
+
+You can enable Elm debugger easily by adding `--debug` option to your `elm-live` start-up:
+`elm-live src/Counter.elm --port=1234 --open  -- --output=main.js --debug`
+
+This gives you access to the bottom right panel:
+![elm-debugger-1](doc/elm-debugger-1.png) 
+
+Clicking on it will give you access to the history of any action done in your application so you can replay them one by one:
+![elm-debugger-1](doc/elm-debugger-2.png) 
+
+This can be very useful whenever you want to debug your application behaviour.
+
+### Exercise 1: Counter
+
+- Create a new Elm file `Counter.elm` in your `src` directory as below:
+
+```elm
+module Counter exposing (Model, Msg(..), initialModel, main, update, view)
+
+import Browser
+import Html exposing (Html, button, div, text)
+import Html.Events exposing (onClick)
+
+
+type alias Model =
+    { count : Int }
+
+
+initialModel : Model
+initialModel =
+    { count = 0 }
+
+
+type Msg
+    = Increment
+
+
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        Increment ->
+            { model | count = model.count + 1 }
+
+
+view : Model -> Html Msg
+view model =
+    div []
+        [ button [ onClick Increment ] [ text "+1" ]
+        , div [] [ text <| String.fromInt model.count ]
+        ]
+
+
+main : Program () Model Msg
+main =
+    Browser.sandbox
+        { init = initialModel
+        , view = view
+        , update = update
+        }
+
+```
+
+- Run the program: `elm-live src/Counter.elm --port=1234 --open  -- --output=main.js`
+
+- Implement `decrement` action
+
+### Exercise 2: Text input
+
+- Create a new Elm module: `Input.elm`
+- This module should expose an input text and when typing, the state should be updated and a message `Hello ` + login should appear
+![hello-step-4](doc/step-4.elm)
+- **Bonus**: Write "Hello World" whenever the typed value from input is empty
