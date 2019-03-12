@@ -4,57 +4,70 @@ This projects aims to introduce Elm basics as a hands-on project
 
 ## Startup
 
-### MacOS
+Install [Git](https://git-scm.com/downloads) if it is not already done
+
+### Install `elm`
+
+#### MacOS
 
 Prerequisites: [Homebrew](https://brew.sh/index_fr)
 
 - Install elm: `brew install elm`
 - Install or update npm: `brew install npm` or `brew upgrade npm`
 - Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-- Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
 
-### Unix 
+#### Unix 
 - Install elm: `apt-get install elm`
 - Install or update npm: `apt-get install npm` or `apt-get upgrade npm`
 - Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-- Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
 
-### Windows
+#### Windows
 - Install elm: [Windows Installer](https://guide.elm-lang.org/install.html)
 - Install or update npm: [Node](https://nodejs.org/en/download/)
 - Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-- Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
-
-## Technologies 
-Written in [Elm 0.19.0](https://elm-lang.org/)
-
-![Elm logo](doc/logo.png)
-
-### Code style guide
-I recommend using [NoRedInk Elm style guide](https://github.com/NoRedInk/elm-style-guide) which defines some basic rules for naming and styling our code.
-
-### Hot-reload
-Install [elm-live](https://github.com/wking-io/elm-live): `npm install -g elm-live`
-
-Start application: `elm-live src/Main.elm --port=1234 --open -- --output=main.js`
 
 ### Unit tests
 Install [elm-test](https://github.com/elm-community/elm-test): `npm install -g elm-test`
-
-Run unit tests: `elm-test --watch`
 
 ### Formatter
 Install [elm-format](https://github.com/avh4/elm-format) following this startup guide: [Install Elm format](https://github.com/avh4/elm-format)
 
 This aims to format using Elm style guide when saving.
 
-
 ## Check configuration
 
-Elm version should be **0.19.0**
 ```
-➜  ~ elm --version
+➜  ~ elm --version     
 0.19.0
+➜  ~ elm-live --version
+3.2.3
+➜  ~ elm-test --version
+0.19.0-rev6
+➜  ~ elm-format --help 
+elm-format 0.8.1
+
+Usage: elm-format [INPUT] [--output FILE] [--yes] [--validate] [--stdin]
+                  [--elm-version VERSION] [--upgrade]
+  Format Elm source files.
+
+Available options:
+  -h,--help                Show this help text
+  --output FILE            Write output to FILE instead of overwriting the given
+                           source file.
+  --yes                    Reply 'yes' to all automated prompts.
+  --validate               Check if files are formatted without changing them.
+  --stdin                  Read from stdin, output to stdout.
+  --elm-version VERSION    The Elm version of the source files being formatted.
+                           Valid values: 0.18, 0.19. Default: auto
+  --upgrade                Upgrade older Elm files to Elm 0.19 syntax
+
+Examples:
+  elm-format Main.elm                     # formats Main.elm
+  elm-format Main.elm --output Main2.elm  # formats Main.elm as Main2.elm
+  elm-format src/                         # format all *.elm files in the src directory
+
+Full guide to using elm-format at <https://github.com/avh4/elm-format>
+➜  ~ 
 ```
 
 ## Step-0: Hello World
@@ -522,3 +535,100 @@ generate min max =
         |> Random.int min
         |> Random.generate Rolled
 ```
+
+## Step-6: Testing
+
+As Elm application are basically made of pure functions and thanks to the elm compiler it drives us to build reliable application very easily and it does help us a lot to unit test our application as well.
+
+Indeed, it is a lot easier to test a pure function as, by definition, it should always returns the same value based on the same input.
+
+### Requirements
+
+There are few requirements before running our first test:
+- install `elm-test` which is a node package allowing us to run the elm tests: `npm install -g elm-test`
+- install Elm package [`elm-explorations/test`](https://github.com/elm-explorations/test) to get helpers for writing our unit tests
+- run `elm-test init` to initialize your project with unit tests (it creates a `tests` directory)
+
+### Let's write our first unit test
+
+Once the requirements are ran, you should get `tests/Example.elm` in which you can copy/paste the following code:
+```elm
+module Example exposing (myFirstTest)
+
+import Expect exposing (Expectation)
+import Test exposing (..)
+
+
+myFirstTest : Test
+myFirstTest =
+    test "1 should be equal to 1" <|
+        \_ ->
+            1
+                |> Expect.equal 1
+```
+
+To run our first test, you can run: `elm-test` in your project directory and you should see as following:
+```bash
+elm-test 0.19.0-rev6
+--------------------
+
+Running 1 test. To reproduce these results, run: elm-test --fuzz 100 --seed 363451075738594 /Users/Remi/projects/perso/elm-hands-on/tests/Example.elm
+
+
+TEST RUN PASSED
+
+Duration: 195 ms
+Passed:   1
+Failed:   0
+```
+
+### Test Watch mode
+`elm-test` comes with a *watch mode* allowing us to change our code and getting our unit tests replayed automatically.
+
+To run it with *watch mode*, run `elm-test --watch`.
+
+Try updating your unit test afterwards and check the result in your console.
+
+### Exercise-1: Testing `String.reverse`
+
+- Create unit tests to validate `String.reverse` function with `kayak` - it should return `kayak`
+- Create unit tests to validate `String.reverse` function with `elm` - it should return `mle`
+
+### Fuzz testing - Property based testing
+
+When talking about reversing a string there is a property coming in our head which is: the provided word can be reverse twice and should return the original word.
+
+So, we can imagine testing this property instead of unit testing a single word as before. 
+
+We can imagine generating a random word and after calling this `String.reverse` function twice, asserting the result word is the same as the original one.
+
+`elm-test` allows us to deals with this property base testing working with *Fuzz tests*. 
+
+Example: 
+
+```elm
+myFirstFuzzTest : Test
+myFirstFuzzTest =
+    Test.fuzz Fuzz.int "My first fuzz test " <|
+        \randomValue ->
+            randomValue
+                |> Debug.log "random value = "
+                |> Expect.equal randomValue
+```  
+Few differences with the unit test we've written before: 
+- The test is created thanks to `Test.fuzz` instead of `Test.test`
+- `Test.fuzz` takes an additional parameter which is a Fuzzer function (`Fuzz.int`) to generate a random `Int` 
+- The value is retrieved in the lambda function `\randomValue`
+
+Random values are generated thanks to `Fuzz` function like `Fuzz.int` or `Fuzz.string`. You can create your own if you need to.
+
+Running the test will generate this output:
+![fuzz-test](doc/fuzz-test.png)
+
+**Note**: 
+- The test was executed generating 100 random values by default (see `--fuzz` option) but it can be overridden
+- You can replay the test with the same exact value using the `seed` value
+
+### Exercise-2: Write a fuzz test for `String.reverse` 
+
+Create a fuzz test to assert the following property: providing a random `String` variable, when calling the `String.reverse` function twice, the result should be the same as the original value.
